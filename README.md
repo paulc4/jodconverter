@@ -16,11 +16,11 @@ See http://jodconverter.googlecode.com for some documentation.
 
 The code has been updated as follows:
 
-. Compiels for Java 8
-. Recognises LibreOffice V4 and Open Office V4 when hunting for executables.
-. Fixed startup command in `OfficeProcess"
-. SIGAR libraries included (see below)
-. Wraps up the whole API into a convenient single class `OpenOfficeConverterUsingJOD3`
+1. Compiles for Java 8
+1. Recognises LibreOffice V4 and Open Office V4 when hunting for executables.
+1. Fixed startup command in `OfficeProcess`
+1. SIGAR libraries included (see below)
+1. Wraps up the whole API into a convenient single class `OpenOfficeConverterUsingJOD3`
 
 ### SIGAR
 
