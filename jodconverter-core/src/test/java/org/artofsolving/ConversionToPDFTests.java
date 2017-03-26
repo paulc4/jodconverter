@@ -3,12 +3,9 @@ package org.artofsolving;
 import java.io.File;
 import java.util.List;
 
-import org.artofsolving.OpenOfficeConverterUsingJOD3;
 import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
 import org.artofsolving.jodconverter.office.OfficeUtils;
 import org.junit.Test;
-
-import io.pivotal.training.pdf.OpenOfficeUtils;
 
 public class ConversionToPDFTests {
 
