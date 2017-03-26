@@ -1,17 +1,54 @@
 # JODConverter
 
-JODConverter (for Java OpenDocument Converter) automates document conversions
-using LibreOffice or OpenOffice.org.
+This is derived from JODConverter 3.0 beta, forked from
+https://github.com/mirkonasato/jodconverter which is no longer maintained.
 
-### Warning: This Repository is Unmaintained
+## What is it?
 
-I started this project back in 2003, and stopped maintaining it in 2012. I moved the code here at GitHub in the
-hope that a well-maintained fork will emerge.
+JODConverter (Java OpenDocument Converter) automates conversions between
+office document formats using LibreOffice or Apache OpenOffice.  It runs
+up the Office application in "headless" server mode and then makes requests
+for conversions bysending requests oveer a socket. The default port is 8100.
 
-So you may want to use one of the more recently updated [forks](https://github.com/mirkonasato/jodconverter/network)
-instead of this repository. Please don't bother submitting pull requests to this repository as they will simply be ignored.
+See http://jodconverter.googlecode.com for some documentation.
 
-The previous home for this project is at [Google Code](http://code.google.com/p/jodconverter/),
-including some [wiki pages](https://code.google.com/archive/p/jodconverter/wikis).
+## Changes
 
--- Mirko Nasato
+The code has been updated as follows:
+
+. Compiels for Java 8
+. Recognises LibreOffice V4 and Open Office V4 when hunting for executables.
+. Fixed startup command in `OfficeProcess"
+. SIGAR libraries included (see below)
+. Wraps up the whole API into a convenient single class `OpenOfficeConverterUsingJOD3`
+
+### SIGAR
+
+One of the nice imprvements from JOD V2 is automated start and stop of the
+server process. To do this it uses the SIGAR monitoring tool if available.
+SIGAR in urn relies on Operating System facilities so it requires some
+native libraries to be available.
+
+The SIGAR native libraries/DLLs are included in a zip file in
+`src/main/resources/sigar-native-lib.zip`.  At runtime, this zip
+file is unpacked into `.jod-sigar-lib` in the user's home drectly.
+
+Alternatively you can explicitly specify the location using
+`SigarProcessManager.setupLibraryPath(sigarNativeLibDir)`.
+
+SIGAR (System Information Gatherer and Reporter) is a cross-platform,
+cross-language library and command-line tool for accessing operating
+system and hardware level information in Java, Perl and .NET.
+
+Originally developed by Hyperic, the company was taken over by VMware.
+It can be found here: https://sourceforge.net/projects/sigar.
+
+## Licensing
+
+JODConverter is open source software, you can redistribute it and/or
+modify it under either (at your option) of the following licenses
+
+1. The GNU Lesser General Public License v3 (or later)
+   -> see LICENSE-LGPL.txt
+2. The Apache License, Version 2.0
+   -> see LICENSE-Apache.txt
