@@ -26,7 +26,7 @@ The code has been updated as follows:
 
 One of the nice imprvements from JOD V2 is automated start and stop of the
 server process. To do this it uses the SIGAR monitoring tool if available.
-SIGAR in urn relies on Operating System facilities so it requires some
+SIGAR in turn relies on Operating System facilities so it requires some
 native libraries to be available.
 
 The SIGAR native libraries/DLLs are included in a zip file in
