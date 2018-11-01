@@ -13,6 +13,7 @@
 package org.artofsolving.jodconverter.document;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -21,9 +22,14 @@ public class DefaultDocumentFormatRegistry extends SimpleDocumentFormatRegistry 
 	public DefaultDocumentFormatRegistry() {
 		DocumentFormat pdf = new DocumentFormat("Portable Document Format", "pdf", "application/pdf");
 		pdf.setStoreProperties(DocumentFamily.TEXT, Collections.singletonMap("FilterName", "writer_pdf_Export"));
-		pdf.setStoreProperties(DocumentFamily.SPREADSHEET, Collections.singletonMap("FilterName", "calc_pdf_Export"));
+		//pdf.setStoreProperties(DocumentFamily.SPREADSHEET, Collections.singletonMap("FilterName", "calc_pdf_Export"));
 		pdf.setStoreProperties(DocumentFamily.PRESENTATION, Collections.singletonMap("FilterName", "impress_pdf_Export"));
 		pdf.setStoreProperties(DocumentFamily.DRAWING, Collections.singletonMap("FilterName", "draw_pdf_Export"));
+		
+		Map<String, String> temp = new HashMap<>();
+		temp.put("FilterName", "calc_pdf_Export");
+		temp.put("PageRange", "2-3");
+		pdf.setStoreProperties(DocumentFamily.PRESENTATION, temp);
 		addFormat(pdf);
 		
 		DocumentFormat swf = new DocumentFormat("Macromedia Flash", "swf", "application/x-shockwave-flash");

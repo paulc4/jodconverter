@@ -75,9 +75,11 @@ public class SigarProcessManager implements ProcessManager {
 
 		if (sigarJar.exists() && sigarJar.isFile())
 			; // Nothing to do
-		else
-			// Unpack the zip included in thsi project
+		else {
+			// Unpack the zip included in this project
 			ZipUtils.unzipToUserHome(SIGAR_NATIVE_LIB_ZIP, SIGAR_FALLBACK_LIB_DIR, ZipUtils.DONT_OVERWRITE);
+			new File(SIGAR_FALLBACK_LIB_DIR, "__MACOSX").delete();
+		}
 
 		setupLibraryPath(actualLibDir);
 	}
@@ -121,9 +123,12 @@ public class SigarProcessManager implements ProcessManager {
 			for (int i = 0; i < pids.length; i++) {
 				String[] arguments = sigar.getProcArgs(pids[i]);
 				if (arguments != null && argumentMatches(arguments, query.getArgument())) {
+					logger.info("Process " + query.getCommand() + " found: id=" + pids[i]);
 					return pids[i];
 				}
 			}
+
+			logger.info("Process " + query.getCommand() + " bot found");
 			return PID_NOT_FOUND;
 		} catch (SigarException sigarException) {
 			throw new IOException("findPid failed", sigarException);
@@ -141,9 +146,10 @@ public class SigarProcessManager implements ProcessManager {
 		}
 
 		try {
+			logger.info("kill " + pid);
 			sigar.kill(pid, Sigar.getSigNum("KILL"));
 		} catch (SigarException sigarException) {
-			throw new IOException("kill failed", sigarException);
+			throw new IOException("kill " + pid + ": failed", sigarException);
 		} finally {
 			sigar.close();
 		}

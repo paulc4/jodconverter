@@ -81,7 +81,7 @@ public abstract class AbstractConversionTask implements OfficeTask {
         Map<String,?> loadProperties = getLoadProperties(inputFile);
         XComponent document = null;
         try {
-            document = loader.loadComponentFromURL(toUrl(inputFile), "_blank", 0, toUnoProperties(loadProperties));
+            document = loader.loadComponentFromURL(toUrl(inputFile), "_blank", 8, toUnoProperties(loadProperties));
         } catch (IllegalArgumentException illegalArgumentException) {
             throw new OfficeException("could not load document: " + inputFile.getName(), illegalArgumentException);
         } catch (ErrorCodeIOException errorCodeIOException) {
@@ -110,6 +110,7 @@ public abstract class AbstractConversionTask implements OfficeTask {
 
     private void storeDocument(XComponent document, File outputFile) throws OfficeException {
         Map<String,?> storeProperties = getStoreProperties(outputFile, document);
+        //System.out.println(" >>>> " + storeProperties);
         if (storeProperties == null) {
             throw new OfficeException("unsupported conversion");
         }

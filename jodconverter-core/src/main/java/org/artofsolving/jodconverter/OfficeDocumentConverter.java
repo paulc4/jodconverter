@@ -43,9 +43,12 @@ public class OfficeDocumentConverter {
 
     private Map<String,Object> createDefaultLoadProperties() {
         Map<String,Object> loadProperties = new HashMap<String,Object>();
-        loadProperties.put("Hidden", true);
-        loadProperties.put("ReadOnly", true);
+        loadProperties.put("Hidden", Boolean.TRUE);
+        loadProperties.put("ReadOnly", Boolean.TRUE);
         loadProperties.put("UpdateDocMode", UpdateDocMode.QUIET_UPDATE);
+        loadProperties.put("ExportNotesPages", Boolean.TRUE);
+        loadProperties.put("ExportBookmarks", Boolean.TRUE);
+        loadProperties.put("PageRange", "2-3");
         return loadProperties;
     }
 

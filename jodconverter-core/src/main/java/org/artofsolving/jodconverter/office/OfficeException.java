@@ -22,5 +22,7 @@ public class OfficeException extends RuntimeException {
 
     public OfficeException(String message, Throwable cause) {
 		super(message, cause);
+		System.out.println(cause);
+		cause.printStackTrace();
 	}
 }

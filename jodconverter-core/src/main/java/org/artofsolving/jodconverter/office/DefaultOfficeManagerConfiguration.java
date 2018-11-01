@@ -23,8 +23,10 @@ import org.artofsolving.jodconverter.util.PlatformUtils;
 public class DefaultOfficeManagerConfiguration {
 
 	public static final long DEFAULT_RETRY_TIMEOUT = 120000L;
+	
+	public static final String KEEP_PROFILE_DIRECTORY = "keep.profile.directory";
 
-	private File officeHome = OfficeUtils.getDefaultOfficeHome();
+	private File officeHome = null;
 	private OfficeConnectionProtocol connectionProtocol = OfficeConnectionProtocol.SOCKET;
 	private int[] portNumbers = new int[] { 2002 };
 	private String[] pipeNames = new String[] { "office" };
@@ -32,8 +34,8 @@ public class DefaultOfficeManagerConfiguration {
 	private File templateProfileDir = null;
 	private File workDir = new File(System.getProperty("java.io.tmpdir"));
 	private long taskQueueTimeout = 30000L; // 30 seconds
-	private long taskExecutionTimeout = 120000L; // 2 minutes
-	private int maxTasksPerProcess = 200;
+	private long taskExecutionTimeout = PooledOfficeManagerSettings.DEFAULT_TASK_EXECUTION_TIMEOUT; // 2 minutes
+	private int maxTasksPerProcess =PooledOfficeManagerSettings.DEFAULT_MAX_TASKS_PER_PROCESS;
 	private long retryTimeout = DEFAULT_RETRY_TIMEOUT;
 
 	private ProcessManager processManager = null; // lazily initialised
@@ -175,7 +177,11 @@ public class DefaultOfficeManagerConfiguration {
 
 	public OfficeManager buildOfficeManager() throws IllegalStateException {
 		if (officeHome == null) {
-			throw new IllegalStateException("officeHome not set and could not be auto-detected");
+			officeHome = OfficeUtils.getDefaultOfficeHome();
+
+			if (officeHome == null) {
+				throw new IllegalStateException("officeHome not set and could not be auto-detected");
+			}
 		} else if (!officeHome.isDirectory()) {
 			throw new IllegalStateException("officeHome doesn't exist or is not a directory: " + officeHome);
 		} else if (!OfficeUtils.getOfficeExecutable(officeHome).isFile()) {

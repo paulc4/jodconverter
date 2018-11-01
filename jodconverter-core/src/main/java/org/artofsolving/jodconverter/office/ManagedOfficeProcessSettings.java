@@ -22,7 +22,7 @@ class ManagedOfficeProcessSettings {
     public static final long DEFAULT_RETRY_INTERVAL = 250L;
 
     private final UnoUrl unoUrl;
-    private File officeHome = OfficeUtils.getDefaultOfficeHome();
+    private File officeHome = null;
     private String[] runAsArgs;
     private File templateProfileDir;
     private File workDir = new File(System.getProperty("java.io.tmpdir"));
@@ -39,6 +39,14 @@ class ManagedOfficeProcessSettings {
     }
 
     public File getOfficeHome() {
+		if (officeHome == null) {
+			officeHome = OfficeUtils.getDefaultOfficeHome();
+
+			if (officeHome == null) {
+				throw new IllegalStateException("officeHome not set and could not be auto-detected");
+			}
+		}
+
         return officeHome;
     }
 

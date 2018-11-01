@@ -52,9 +52,7 @@
 		</repository>
 	</repositories>
 
-
 	<dependencies>
-
 		<!-- Required dependencies -->
 
 		<dependency>

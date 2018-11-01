@@ -64,8 +64,11 @@ class OfficeProcess {
 	private final File instanceProfileDir;
 	private final ProcessManager processManager;
 
+	private File executable;
 	private Process process;
 	private long pid = PID_UNKNOWN;
+	private boolean firstTime = true;
+	private boolean deleteProfDir = true;
 
 	public OfficeProcess(File officeHome, UnoUrl unoUrl, String[] runAsArgs, File templateProfileDir, File workDir,
 			ProcessManager processManager) {
@@ -110,9 +113,12 @@ class OfficeProcess {
 	 * @throws IOException
 	 */
 	public void start(StartAction startAction) throws IOException {
-		File executable = OfficeUtils.getOfficeExecutable(officeHome);
-		logger.info("Server socket: " + unoUrl);
-		logger.info("Server executable: " + executable);
+		executable = OfficeUtils.getOfficeExecutable(officeHome);
+
+		if (firstTime) {
+			logger.info("Server socket: " + unoUrl);
+			logger.info("Server executable: " + executable);
+		}
 
 		// Is there an exiting process? If so fail unless restart specified.
 		ProcessQuery processQuery = new ProcessQuery(executable.getName(), unoUrl.getAcceptString());
@@ -166,14 +172,18 @@ class OfficeProcess {
 		command.add(option + "nologo");
 		command.add(option + "norestore");
 
-		logger.info("Running command=" + command);
+		if (firstTime)
+			logger.info("Running command=" + command);
 
 		ProcessBuilder processBuilder = new ProcessBuilder(command);
 		if (PlatformUtils.isWindows()) {
 			addBasisAndUrePaths(processBuilder);
 		}
-		logger.info(String.format("starting process with acceptString '%s' and profileDir '%s'", unoUrl,
-				instanceProfileDir));
+
+		if (firstTime)
+			logger.info(String.format("starting process with acceptString '%s' and profileDir '%s'", unoUrl,
+					instanceProfileDir));
+
 		process = processBuilder.start();
 		pid = processManager.findPid(processQuery);
 
@@ -182,7 +192,10 @@ class OfficeProcess {
 					"process with acceptString '%s' started but its pid could not be found", unoUrl.getAcceptString()));
 		}
 
-		logger.info("started process" + (pid != PID_UNKNOWN ? "; pid = " + pid : ""));
+		if (firstTime)
+			logger.info("started process" + (pid != PID_UNKNOWN ? "; pid = " + pid : ""));
+
+		firstTime = false;
 	}
 
 	private File getInstanceProfileDir(File workDir, UnoUrl unoUrl) {
@@ -191,9 +204,14 @@ class OfficeProcess {
 	}
 
 	private void prepareInstanceProfileDir() throws OfficeException {
+		deleteProfDir = Boolean.parseBoolean(System.getProperty( //
+				DefaultOfficeManagerConfiguration.KEEP_PROFILE_DIRECTORY, "true"));
+
 		if (instanceProfileDir.exists()) {
-			logger.warning(String.format("profile dir '%s' already exists; deleting", instanceProfileDir));
-			deleteProfileDir();
+			if (deleteProfDir) {
+				logger.warning(String.format("profile dir '%s' already exists; deleting", instanceProfileDir));
+				deleteProfileDir();
+			}
 		}
 		if (templateProfileDir != null) {
 			try {
@@ -207,7 +225,8 @@ class OfficeProcess {
 	public void deleteProfileDir() {
 		if (instanceProfileDir != null) {
 			try {
-				FileUtils.deleteDirectory(instanceProfileDir);
+				if (deleteProfDir)
+					FileUtils.deleteDirectory(instanceProfileDir);
 			} catch (IOException ioException) {
 				File oldProfileDir = new File(instanceProfileDir.getParentFile(),
 						instanceProfileDir.getName() + ".old." + System.currentTimeMillis());
@@ -297,8 +316,27 @@ class OfficeProcess {
 		}
 	}
 
+	public long findOfficeProcessId() throws IOException {
+		ProcessQuery processQuery = new ProcessQuery(executable.getName(), unoUrl.getAcceptString());
+		return processManager.findPid(processQuery);
+	}
+
 	public int forciblyTerminate(long retryInterval, long retryTimeout) throws IOException, RetryTimeoutException {
-		logger.info(String.format("trying to forcibly terminate process: '" + unoUrl + "'"
+
+		// Does the process still exist?
+		ProcessQuery processQuery = new ProcessQuery(executable.getName(), unoUrl.getAcceptString());
+		long pidFound = processManager.findPid(processQuery);
+
+		if (pidFound == ProcessManager.PID_NOT_FOUND) {
+			logger.severe("Process " + processQuery + " is no longer running");
+			return 0;
+		}
+
+		if (pidFound != pid) {
+			logger.severe("Looking for '" + processQuery + "' pid=" + pid + " but found pid=" + pidFound);
+		}
+
+		logger.info(String.format("trying to forcibly terminate process: '" + processQuery + "'"
 				+ (pid != PID_UNKNOWN ? " (pid " + pid + ")" : "")));
 		processManager.kill(process, pid);
 		return getExitCode(retryInterval, retryTimeout);

@@ -31,7 +31,8 @@ import com.sun.star.lang.XEventListener;
 import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.uno.XComponentContext;
 
-class OfficeConnection implements OfficeContext {
+// FIXME - remove public
+public class OfficeConnection implements OfficeContext {
 
     private static AtomicInteger bridgeIndex = new AtomicInteger();
 
@@ -85,7 +86,7 @@ class OfficeConnection implements OfficeContext {
             XPropertySet properties = OfficeUtils.cast(XPropertySet.class, serviceManager);
             componentContext = OfficeUtils.cast(XComponentContext.class, properties.getPropertyValue("DefaultContext"));
             connected = true;
-            logger.info(String.format("connected: '%s'", unoUrl));
+            logger.info(String.format("connecting: '%s' ", unoUrl));
             OfficeConnectionEvent connectionEvent = new OfficeConnectionEvent(this);
             for (OfficeConnectionEventListener listener : connectionEventListeners) {
                 listener.connected(connectionEvent);
@@ -95,6 +96,8 @@ class OfficeConnection implements OfficeContext {
         } catch (Exception exception) {
             throw new OfficeException("connection failed: "+ unoUrl, exception);
         }
+        
+        logger.info("Connected successfully");
     }
 
     public boolean isConnected() {
